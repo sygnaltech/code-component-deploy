@@ -1,0 +1,26 @@
+{
+  "name": "@sygnal/code-component",
+  "version": "0.1.1",
+  "description": "Shared tooling for Sygnal Webflow component libraries",
+  "main": "lib/index.js",
+  "bin": {
+    "sygnal-deploy": "bin/deploy.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "webflow",
+    "components",
+    "deployment",
+    "build-tools"
+  ],
+  "author": "Sygnal",
+  "license": "MIT",
+  "peerDependencies": {
+    "@webflow/webflow-cli": "^1.8.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
