@@ -19,14 +19,13 @@ npm install --save-dev @sygnal/code-component
 
 ### 1. Setup your project structure
 
-Your project needs:
+Your project needs only **2 files**:
 
 ```
 your-project/
 ├── src/
 │   └── version.ts              # Export VERSION constant
-├── webflow.main.json           # Production config
-├── webflow.test.json           # Test/dev config
+├── webflow.main.json           # Production config (ONLY file needed!)
 └── package.json
 ```
 
@@ -35,24 +34,21 @@ your-project/
 export const VERSION = "1.2.3";
 ```
 
-**Example config files:**
+**Example `webflow.main.json`:**
 ```json
-// webflow.main.json
 {
   "library": {
     "name": "My Component Library",
-    "id": "my-library-prod"
-  }
-}
-
-// webflow.test.json
-{
-  "library": {
-    "name": "My Component Library",
-    "id": "my-library-test"
+    "components": ["./src/**/*.webflow.@(js|jsx|mjs|ts|tsx)"],
+    "description": "My Component Library",
+    "id": "my-library"
   }
 }
 ```
+
+**That's it!** The script automatically generates test config from `webflow.main.json`:
+- Appends "Test" to the library name
+- Appends "-test" to the library ID
 
 ### 2. Add deploy script to package.json
 
@@ -75,10 +71,20 @@ npm run deploy
 When you run `sygnal-deploy`:
 
 1. **Detects current git branch**
-2. **Copies appropriate config** - `webflow.main.json` for `main` branch, `webflow.test.json` otherwise
+2. **Generates config** - Uses `webflow.main.json` directly for `main` branch, auto-generates test config for other branches
 3. **Reads version** from `src/version.ts`
-4. **Updates library name** - Appends version (e.g., "My Library v1.2.3" or "My Library v1.2.3 ⚠️" for non-main)
+4. **Updates library name** - Appends version (e.g., "My Library v1.2.3" or "My Library Test v1.2.3 ⚠️" for non-main)
 5. **Runs** `npx webflow library share --no-input`
+
+### Example Output
+
+**On `main` branch:**
+- Library name: "My Component Library v1.2.3"
+- Library ID: "my-library"
+
+**On any other branch:**
+- Library name: "My Component Library Test v1.2.3 ⚠️"
+- Library ID: "my-library-test"
 
 ## Advanced Usage
 
