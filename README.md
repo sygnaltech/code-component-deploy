@@ -6,8 +6,10 @@ Shared tooling for deploying Sygnal Webflow component libraries with branch-base
 
 - 🔀 **Branch-based config switching** - Automatically uses different Webflow configs for `main` vs other branches
 - 🏷️ **Automatic versioning** - Extracts version from your source and appends it to library name
-- ⚠️ **Test branch indicator** - Adds warning emoji to non-main branch deployments
+- ⚠️ **Test branch indicators** - Adds warning emoji to library name AND component names on non-main branches
 - 🚀 **One-command deploy** - Handles config switching, versioning, and Webflow upload
+- 🛡️ **Safe deployments** - Uses temporary `/deploy` directory, original source files never modified
+- 🧹 **Auto-cleanup** - Temporary files cleaned up automatically (even on errors)
 
 ## Installation
 
@@ -60,7 +62,15 @@ export const VERSION = "1.2.3";
 }
 ```
 
-### 3. Deploy!
+### 3. Add to .gitignore
+
+```gitignore
+# Webflow deployment
+webflow.json
+/deploy
+```
+
+### 4. Deploy!
 
 ```bash
 npm run deploy
@@ -68,23 +78,39 @@ npm run deploy
 
 ## How it works
 
-When you run `sygnal-deploy`:
+### On `main` branch:
 
-1. **Detects current git branch**
-2. **Generates config** - Uses `webflow.main.json` directly for `main` branch, auto-generates test config for other branches
+1. **Detects git branch** → `main`
+2. **Uses** `webflow.main.json` directly
 3. **Reads version** from `src/version.ts`
-4. **Updates library name** - Appends version (e.g., "My Library v1.2.3" or "My Library Test v1.2.3 ⚠️" for non-main)
-5. **Runs** `npx webflow library share --no-input`
+4. **Updates library name** with version
+5. **Deploys** directly from `src/` files
+6. **Result:**
+   - Library name: "My Component Library v1.2.3"
+   - Library ID: "my-library"
+   - Component names: "Toggle", "Form Upload", etc. (clean names)
 
-### Example Output
+### On any other branch (feature/test/dev):
 
-**On `main` branch:**
-- Library name: "My Component Library v1.2.3"
-- Library ID: "my-library"
+1. **Detects git branch** → `feature/test`
+2. **Copies** `src/` → `/deploy/src/` with component names modified (adds ⚠️)
+3. **Auto-generates** test config from `webflow.main.json`
+4. **Updates** `webflow.json` to point to `/deploy/src/**/*.webflow.*`
+5. **Reads version** from `src/version.ts`
+6. **Updates library name** with version + warning
+7. **Deploys** from `/deploy` directory
+8. **Cleans up** `/deploy` directory (even on error)
+9. **Result:**
+   - Library name: "My Component Library Test v1.2.3 ⚠️"
+   - Library ID: "my-library-test"
+   - Component names: "Toggle ⚠️", "Form Upload ⚠️", etc. (with warnings!)
 
-**On any other branch:**
-- Library name: "My Component Library Test v1.2.3 ⚠️"
-- Library ID: "my-library-test"
+### Why the `/deploy` directory?
+
+- ✅ **Your source files are never touched** - 100% safe
+- ✅ **Crash-safe** - Original files untouched even if script fails
+- ✅ **Debuggable** - Can inspect `/deploy` if something goes wrong
+- ✅ **No git conflicts** - `/deploy` is gitignored
 
 ## Advanced Usage
 
