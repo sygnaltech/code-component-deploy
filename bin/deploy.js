@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { deploy } = require('../lib/index');
+const { deploy, getCurrentBranch } = require('../lib/index');
 
 // Parse command line arguments for future extensibility
 const args = process.argv.slice(2);
@@ -44,6 +44,14 @@ Examples:
         process.exit(0);
     }
 }
+
+// Determine if this is a prerelease based on current branch
+const branch = getCurrentBranch();
+const mainBranch = options.mainBranch || 'main';
+options.isPrerelease = (branch !== mainBranch);
+
+console.log(`Current branch: ${branch}`);
+console.log(`Deployment type: ${options.isPrerelease ? 'PRERELEASE' : 'PRODUCTION'}`);
 
 // Run the deployment
 deploy(options);
