@@ -1,6 +1,6 @@
 {
   "name": "@sygnal/code-component",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Shared tooling for Sygnal Webflow component libraries",
   "main": "lib/index.js",
   "bin": {
