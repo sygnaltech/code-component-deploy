@@ -4,7 +4,8 @@
   "description": "Shared tooling for Sygnal Webflow component libraries",
   "main": "lib/index.js",
   "bin": {
-    "sygnal-deploy": "bin/deploy.js"
+    "sygnal-deploy": "bin/deploy.js",
+    "sygnal-github-deploy": "bin/github-deploy.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
