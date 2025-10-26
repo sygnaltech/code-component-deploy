@@ -2,6 +2,10 @@
 
 This package enhances Webflow's code component library deployment with clear versioning and pre-release support. 
 
+Video walkthrough;
+
+https://www.loom.com/share/64d4c631a0ad48fab077adc6e7685d4f
+
 ## Versioning 
 
 All library names are adjusted to include the current version number, e.g. `My Library` becomes `My Library v1.1.2`.

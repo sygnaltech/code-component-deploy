@@ -1,6 +1,6 @@
 {
   "name": "@sygnal/code-component",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "Versioning and prerelease support for Webflow code component libraries",
   "main": "lib/index.js",
   "bin": {
