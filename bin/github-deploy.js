@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/* SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2025 Sygnal Technology Group
+ */
+
 const { deploy } = require('../lib/index');
 
 // Parse command line arguments for future extensibility

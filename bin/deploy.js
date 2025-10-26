@@ -1,5 +1,9 @@
 #!/usr/bin/env node
 
+/* SPDX-License-Identifier: GPL-3.0-only
+ * Copyright (C) 2025 Sygnal Technology Group
+ */
+
 const { deploy, getCurrentBranch, shouldDeployAsRelease } = require('../lib/index');
 const readline = require('readline');
 
