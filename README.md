@@ -2,17 +2,22 @@
 
 This package enhances Webflow's code component library deployment with clear versioning and pre-release support. 
 
-Video walkthrough;
+```bash
+npm install --save-dev @sygnal/code-component
+```
 
+## Features 
+
+Video walkthrough;
 https://www.loom.com/share/64d4c631a0ad48fab077adc6e7685d4f
 
-## Versioning 
+### Versioning 
 
 All library names are adjusted to include the current version number, e.g. `My Library` becomes `My Library v1.1.2`.
 
 This makes it possible to easily identify which version is installed in a workspace, and which version each site has installed. 
 
-## Pre-Release Support
+### Pre-Release Support
 
 Integration testing code component libraries means you need to deploy them into Webflow- however this is problematic for production workspaces, since it can conflict with versions you already rely on.
 
