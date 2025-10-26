@@ -1,6 +1,6 @@
 # @sygnal/code-component
 
-This package enhances Webflow's CLI library deployment with clear versioning and pre-release support in your libraries. 
+This package enhances Webflow's code component library deployment with clear versioning and pre-release support. 
 
 ## Versioning 
 
@@ -8,29 +8,48 @@ All library names are adjusted to include the current version number, e.g. `My L
 
 This makes it possible to easily identify which version is installed in a workspace, and which version each site has installed. 
 
-## Pre-Release Support 
+## Pre-Release Support
 
-Integration testing code component libraries means you need to deploy them into Webflow- however this is problematic for production workspaces, since it can conflict with versions you already rely on. 
+Integration testing code component libraries means you need to deploy them into Webflow- however this is problematic for production workspaces, since it can conflict with versions you already rely on.
 
-These deployment scripts ensure that your pre-release testing is visible and isolated from your production libraries. 
+These deployment scripts ensure that your pre-release testing is visible and isolated from your production libraries.
 
-- The internal name of your pre-release libraries is adjusted so that e.g. `my-library` becomes `my-library-test`.  This ensures that Webflow sees this as a completely distinct library, and will not replace installed components from your production library. 
+- The internal name of your pre-release libraries is adjusted so that e.g. `my-library` becomes `my-library-test`.  This ensures that Webflow sees this as a completely distinct library, and will not replace installed components from your production library.
 
-For visibility; 
+For visibility;
 
-- Pre-release libraries have ⚠️ affixed, e.g. `My Library v.1.1.3 ⚠️` 
-- All components names within the library also have ⚠️ affixed 
+- Pre-release libraries have ⚠️ affixed, e.g. `My Library v.1.1.3 ⚠️`
+- All components names within the library also have ⚠️ affixed
 
-Usage notes; 
+## Deployment Modes
 
-Release v. pre-release deployment is git branch-aware. 
+The deployment system supports three modes:
 
-- Currently, the `main` branch is considered the production branch.  Any deployments from the `main` branch are considered standard production deployments. 
-- Deployments from any other branch, e.g. `feature/new-component` are considered pre-release deployments, and will deploy the library in pre-release mode. 
+### 1. **Auto-detect mode** (default)
+```bash
+npm run deploy
+```
+Automatically determines deployment mode based on your current git branch:
+- **Release mode**: `main`, `master`, or branches starting with `release/`
+- **Prerelease mode**: all other branches (e.g., `feature/*`, `dev`, `test`)
+
+Release deployments require confirmation (can be skipped with `--no-input` or in CI environments).
+
+### 2. **Explicit release mode**
+```bash
+npm run deploy-prod    # or: sygnal-deploy --release
+```
+Forces release (production) deployment regardless of branch. Requires confirmation prompt.
+
+### 3. **Explicit prerelease mode**
+```bash
+npm run deploy-test    # or: sygnal-deploy --prerelease
+```
+Forces prerelease (test) deployment regardless of branch. No confirmation needed. 
 
 ## Features
 
-- 🔀 **Branch-based config switching** - Automatically uses different Webflow configs for `main` vs other branches
+- 🔀 **Branch-based config switching** - Automatically uses different Webflow configs for release branches vs other branches
 - 🏷️ **Automatic versioning** - Extracts version from your source and appends it to library name
 - ⚠️ **Test branch indicators** - Adds warning emoji to library name AND component names on non-main branches
 - 🚀 **One-command deploy** - Handles config switching, versioning, and Webflow upload
@@ -78,12 +97,14 @@ export const VERSION = "1.2.3";
 - Appends "Test" to the library name
 - Appends "-test" to the library ID
 
-### 2. Add deploy script to package.json
+### 2. Add deploy scripts to package.json
 
 ```json
 {
   "scripts": {
-    "deploy": "sygnal-deploy"
+    "deploy": "sygnal-deploy",
+    "deploy-prod": "sygnal-deploy --release",
+    "deploy-test": "sygnal-deploy --prerelease"
   }
 }
 ```
@@ -98,33 +119,47 @@ webflow.json
 
 ### 4. Deploy!
 
-
 ```bash
+# Auto-detect based on branch
 npm run deploy
+
+# Or force specific mode
+npm run deploy-prod    # Force release
+npm run deploy-test    # Force prerelease
 ```
 
-## Development Workflow 
+## Development Workflow
 
-Pre-release phase;
+### Pre-release phase
 
-- `git checkout -b new-feature` to create pre-release branch 
-- Perform your development work 
-- Do linting locally, and local component testing where possible 
+- `git checkout -b feature/new-feature` to create pre-release branch
+- Perform your development work
+- Do linting locally, and local component testing where possible
 
-Integration testing phase; 
+### Integration testing phase
 
-- From your pre-release branch, e.g. `new-feature` 
-- Deploy to Webflow as a pre-release library using `npm run deploy` 
-- Test your library fully in Webflow.  
+- From your pre-release branch, e.g. `feature/new-feature`
+- Deploy to Webflow as a pre-release library:
+  ```bash
+  npm run deploy        # Auto-detects as prerelease
+  # or explicitly:
+  npm run deploy-test   # Forces prerelease mode
+  ```
+- Test your library fully in Webflow:
   - It can be safely deployed and tested alongside production versions
-  - The library and your components are tagged  with ⚠️ for visibility in the designer nav, canvas, component panel, and quick find. 
+  - The library and your components are tagged with ⚠️ for visibility in the designer nav, canvas, component panel, and quick find
 
-Production release;
+### Production release
 
-- When ready to deploy, switch to your `main` production branch 
-- Merge in your feature-branch changes `npm merge feature/new-feature` 
-- Update the version number in `src/version.ts`, if needed  
-- Deploy to Webflow as a production library using `npm run deploy` 
+- When ready to deploy, switch to your `main` production branch
+- Merge in your feature-branch changes `git merge feature/new-feature`
+- Update the version number in `src/version.ts`, if needed
+- Deploy to Webflow as a production library:
+  ```bash
+  npm run deploy        # Auto-detects as release, prompts for confirmation
+  # or explicitly:
+  npm run deploy-prod   # Forces release mode, prompts for confirmation
+  ``` 
 
 ## Best Practices
 
@@ -180,11 +215,24 @@ Production release;
 sygnal-deploy --version-file src/constants/version.ts
 ```
 
-### Custom main branch name
+### Deployment mode options
 
 ```bash
-sygnal-deploy --main-branch master
+# Auto-detect based on branch
+sygnal-deploy
+
+# Force release deployment (with confirmation)
+sygnal-deploy --release
+
+# Force prerelease deployment (no confirmation)
+sygnal-deploy --prerelease
+
+# Skip confirmation prompts (for CI/CD)
+sygnal-deploy --no-input
+sygnal-deploy --release --no-input
 ```
+
+The `--no-input` flag is automatically enabled when `CI=true` environment variable is set.
 
 ### Programmatic API
 
@@ -195,8 +243,8 @@ const { deploy } = require('@sygnal/code-component');
 
 deploy({
   versionFile: 'src/version.ts',
-  mainBranch: 'main',
-  noInput: true
+  isPrerelease: false,  // true for prerelease, false for release
+  noInput: true         // skip confirmation prompts
 });
 ```
 
@@ -205,6 +253,8 @@ deploy({
 ```javascript
 const {
   getCurrentBranch,
+  getMainBranch,
+  shouldDeployAsRelease,
   switchConfig,
   extractVersion,
   updateLibraryName,
@@ -212,6 +262,8 @@ const {
 } = require('@sygnal/code-component');
 
 const branch = getCurrentBranch();
+const mainBranch = getMainBranch();  // Auto-detects default branch
+const isRelease = shouldDeployAsRelease(branch);  // Determines deployment mode
 const version = extractVersion('src/version.ts');
 // ... use functions individually
 ```

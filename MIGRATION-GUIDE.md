@@ -5,8 +5,8 @@ This guide shows how to migrate an existing Webflow component project to use `@s
 ## Prerequisites
 
 - Your project is a git repository
-- You have `src/version.ts` with `export const VERSION = "x.x.x"`
-- You have `webflow.main.json` (or similar main config)
+- Your default branch is named `main` or `master` 
+- Your Webflow code component project is setup as per the docs 
 
 ## Migration Checklist
 
@@ -16,10 +16,6 @@ This guide shows how to migrate an existing Webflow component project to use `@s
 npm install --save-dev @sygnal/code-component
 ```
 
-Or for local development with npm link:
-```bash
-npm link @sygnal/code-component
-```
 
 ### Step 2: Update package.json
 
@@ -36,27 +32,16 @@ npm link @sygnal/code-component
 ```json
 {
   "scripts": {
-    "deploy": "sygnal-deploy"
+    "deploy": "sygnal-deploy",
+    "deploy-prod": "sygnal-deploy --release",
+    "deploy-test": "sygnal-deploy --prerelease"
   }
 }
 ```
 
-### Step 3: Delete Old Files
+### Step 3: Prepare and verify webflow.main.json
 
-Delete these files if they exist:
-
-- ❌ `scripts/deploy.js` (replaced by the package)
-- ❌ `webflow.test.json` (auto-generated now)
-- ❌ `webflow.json` (will be auto-generated on deploy)
-
-**Commands:**
-```bash
-rm scripts/deploy.js
-rm webflow.test.json
-# Optional: rm -rf scripts  # if deploy.js was the only file
-```
-
-### Step 4: Verify webflow.main.json
+**Rename `webflow.json` to `webflow.main.json`.**  
 
 Ensure your `webflow.main.json` has the correct structure:
 
@@ -71,24 +56,17 @@ Ensure your `webflow.main.json` has the correct structure:
 }
 ```
 
-**Important:**
-- The `name` should NOT include "Test" or version numbers
-- The `id` should be your production library ID (no `-test` suffix)
+### Step 4: Verify src/version.ts
 
-### Step 5: Verify src/version.ts
-
-Ensure your version file exists and has the correct format:
+Ensure your version file exists and uses standard semver format:
 
 ```typescript
 export const VERSION = "1.2.3";
 ```
 
-The package will extract the version using this regex:
-```regex
-/export const VERSION = ['"]([^'"]+)['"]/
-```
+> Do not prefix your version with `v`, this will be done automatically. 
 
-### Step 6: Update .gitignore (Optional)
+### Step 5: Update .gitignore (Optional)
 
 Add `webflow.json` to `.gitignore` since it's auto-generated:
 
@@ -97,7 +75,7 @@ Add `webflow.json` to `.gitignore` since it's auto-generated:
 webflow.json
 ```
 
-### Step 7: Test the Migration
+### Step 6: Test the Migration
 
 Run a dry-run test to verify everything works:
 
@@ -111,18 +89,43 @@ npm run deploy -- --help
 # ...
 ```
 
-### Step 8: Deploy!
+### Step 7: Deploy!
 
 ```bash
+# Auto-detect based on branch
 npm run deploy
+
+# Or force specific mode
+npm run deploy-prod    # Force release (with confirmation)
+npm run deploy-test    # Force prerelease
 ```
 
-**Expected output:**
+**Expected output (on feature branch):**
 ```
+Deployment mode: PRERELEASE (auto-detected)
 Current branch: feature/your-branch
 ✓ Using webflow.main.json (auto-generated test config)
 Found VERSION: x.x.x
 ✓ Updated library name: "Your Library Test" → "Your Library Test vx.x.x ⚠️"
+Running webflow library share...
+✓ Successfully shared library to Webflow
+
+✓ Deployment completed successfully!
+```
+
+**Expected output (on main branch):**
+```
+Deployment mode: RELEASE (auto-detected)
+Current branch: main
+
+⚠️  WARNING: You are about to deploy in RELEASE mode
+   Branch: main
+   This will publish to the production library.
+
+Continue? (N/y): y
+✓ Using webflow.main.json
+Found VERSION: x.x.x
+✓ Updated library name: "Your Library" → "Your Library vx.x.x"
 Running webflow library share...
 ✓ Successfully shared library to Webflow
 
@@ -199,7 +202,9 @@ project/
 ```json
 {
   "scripts": {
-    "deploy": "sygnal-deploy"
+    "deploy": "sygnal-deploy",
+    "deploy-prod": "sygnal-deploy --release",
+    "deploy-test": "sygnal-deploy --prerelease"
   },
   "devDependencies": {
     "@sygnal/code-component": "^0.2.0"
@@ -245,18 +250,33 @@ If your project doesn't follow the standard structure, you can use options:
 # Custom version file location
 sygnal-deploy --version-file src/constants/version.ts
 
-# Custom main branch name
-sygnal-deploy --main-branch master
+# Force specific deployment mode
+sygnal-deploy --release           # Force release (with confirmation)
+sygnal-deploy --prerelease        # Force prerelease
+
+# Skip confirmation prompts (for CI/CD)
+sygnal-deploy --no-input
+sygnal-deploy --release --no-input
 ```
 
 Or in package.json:
 ```json
 {
   "scripts": {
-    "deploy": "sygnal-deploy --version-file src/constants/version.ts"
+    "deploy": "sygnal-deploy --version-file src/constants/version.ts",
+    "deploy-prod": "sygnal-deploy --release",
+    "deploy-test": "sygnal-deploy --prerelease"
   }
 }
 ```
+
+### Deployment Mode Logic
+
+When neither `--release` nor `--prerelease` is specified, the mode is auto-detected:
+- **Release mode**: `main`, `master`, or branches starting with `release/`
+- **Prerelease mode**: all other branches
+
+Release deployments require confirmation unless `--no-input` is specified or `CI=true` environment variable is set.
 
 ## Summary
 

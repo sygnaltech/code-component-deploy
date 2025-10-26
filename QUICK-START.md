@@ -29,12 +29,14 @@ npm install --save-dev @sygnal/code-component @webflow/webflow-cli
 export const VERSION = "0.1.0";
 ```
 
-### 3. Add Script to package.json
+### 3. Add Scripts to package.json
 
 ```json
 {
   "scripts": {
-    "deploy": "sygnal-deploy"
+    "deploy": "sygnal-deploy",
+    "deploy-prod": "sygnal-deploy --release",
+    "deploy-test": "sygnal-deploy --prerelease"
   }
 }
 ```
@@ -42,7 +44,12 @@ export const VERSION = "0.1.0";
 ### 4. Deploy!
 
 ```bash
+# Auto-detect based on branch
 npm run deploy
+
+# Or force specific mode
+npm run deploy-prod    # Force release
+npm run deploy-test    # Force prerelease
 ```
 
 ---
@@ -86,13 +93,25 @@ No `webflow.test.json` needed - it's auto-generated!
 
 ## How It Works
 
+### Deployment Modes
+
+**Auto-detect** (default):
+- Release mode: `main`, `master`, or `release/*` branches (requires confirmation)
+- Prerelease mode: all other branches (no confirmation)
+
+**Explicit modes**:
+- `--release`: Force release deployment (requires confirmation)
+- `--prerelease`: Force prerelease deployment (no confirmation)
+
+### Results
+
 ```
-On main branch:
+Release mode (main/master/release/*):
   webflow.main.json → webflow.json
   Library: "My Library v1.0.0"
   ID: "my-library-id"
 
-On other branches (feature/test/dev):
+Prerelease mode (feature/test/dev):
   webflow.main.json → Auto-generate test config → webflow.json
   Library: "My Library Test v1.0.0 ⚠️"
   ID: "my-library-id-test"
@@ -104,13 +123,20 @@ On other branches (feature/test/dev):
 
 ### Deploy
 ```bash
+# Auto-detect based on branch
 npm run deploy
+
+# Force release mode
+npm run deploy-prod
+
+# Force prerelease mode
+npm run deploy-test
 ```
 
 ### Deploy with options
 ```bash
 npm run deploy -- --version-file src/constants/version.ts
-npm run deploy -- --main-branch master
+npm run deploy -- --release --no-input  # CI/CD mode
 ```
 
 ### Help
@@ -125,8 +151,12 @@ npm run deploy -- --help
 | Option | Default | Description |
 |--------|---------|-------------|
 | `--version-file` | `src/version.ts` | Path to version file |
-| `--main-branch` | `main` | Name of production branch |
+| `--release` | - | Force release (production) deployment |
+| `--prerelease` | - | Force prerelease (test) deployment |
+| `--no-input` | - | Skip confirmation prompts (for CI/CD) |
 | `--help` | - | Show help message |
+
+**Note**: When neither `--release` nor `--prerelease` is specified, deployment mode is auto-detected based on branch name. The `--no-input` flag is automatically enabled when `CI=true` environment variable is set.
 
 ---
 

@@ -1,7 +1,7 @@
 {
   "name": "@sygnal/code-component",
-  "version": "0.5.1",
-  "description": "Shared tooling for Sygnal Webflow component libraries",
+  "version": "0.5.2",
+  "description": "Versioning and prerelease support for Webflow code component libraries",
   "main": "lib/index.js",
   "bin": {
     "sygnal-deploy": "bin/deploy.js",
@@ -17,7 +17,6 @@
     "build-tools"
   ],
   "author": "Sygnal",
-  "license": "MIT",
   "peerDependencies": {
     "@webflow/webflow-cli": "^1.8.0"
   },
