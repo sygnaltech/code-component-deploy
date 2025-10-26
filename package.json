@@ -1,6 +1,14 @@
 {
   "name": "@sygnal/code-component",
   "version": "0.5.5",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sygnaltech/code-component-deploy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sygnaltech/code-component-deploy/issues"
+  },
+  "homepage": "https://github.com/sygnaltech/code-component-deploy#readme",  
   "license": "GPL-3.0-only",
   "description": "Versioning and prerelease support for Webflow code component libraries",
   "main": "lib/index.js",
