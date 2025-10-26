@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { deploy, getCurrentBranch, getMainBranch, shouldDeployAsRelease } = require('../lib/index');
+const { deploy, getCurrentBranch, shouldDeployAsRelease } = require('../lib/index');
 const readline = require('readline');
 
 /**
