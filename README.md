@@ -75,20 +75,30 @@ npm install --save-dev @sygnal/code-component
 
 ### 1. Setup your project structure
 
-Your project needs only **2 files**:
+Your project needs only **1 file**:
 
 ```
 your-project/
 ├── src/
-│   └── version.ts              # Export VERSION constant
+│   └── version.ts              # Optional: Export VERSION constant
 ├── webflow.main.json           # Production config (ONLY file needed!)
 └── package.json
 ```
 
-**Example `src/version.ts`:**
+**Version Resolution:**
+
+The deployment script automatically determines the version using this priority:
+
+1. **`src/version.ts`** - If present, reads `export const VERSION = "1.2.3"`
+2. **`package.json`** - Falls back to the `version` field in package.json
+3. **Date-based** - Final fallback uses current date (YYYY-MM-DD format)
+
+**Example `src/version.ts` (optional):**
 ```typescript
 export const VERSION = "1.2.3";
 ```
+
+If you don't have a `src/version.ts` file, the script will automatically use the version from your `package.json`.
 
 **Example `webflow.main.json`:**
 ```json
@@ -186,7 +196,7 @@ npm run deploy-test    # Force prerelease
 
 1. **Detects git branch** → `main`
 2. **Uses** `webflow.main.json` directly
-3. **Reads version** from `src/version.ts`
+3. **Reads version** from `src/version.ts` (or `package.json` if not present)
 4. **Updates library name** with version
 5. **Deploys** directly from `src/` files
 6. **Result:**
@@ -200,7 +210,7 @@ npm run deploy-test    # Force prerelease
 2. **Copies** `src/` → `/deploy/src/` with component names modified (adds ⚠️)
 3. **Auto-generates** test config from `webflow.main.json`
 4. **Updates** `webflow.json` to point to `/deploy/src/**/*.webflow.*`
-5. **Reads version** from `src/version.ts`
+5. **Reads version** from `src/version.ts` (or `package.json` if not present)
 6. **Updates library name** with version + warning
 7. **Deploys** from `/deploy` directory
 8. **Cleans up** `/deploy` directory (even on error)
